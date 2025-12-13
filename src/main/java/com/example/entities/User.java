@@ -41,6 +41,6 @@ public class User {
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Registration> registrations;
 
-    @OneToMany(mappedBy = "organizer",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<Event> events;
 }
