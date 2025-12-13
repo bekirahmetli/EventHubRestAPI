@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CategoryRepo extends JpaRepository<Category,Long> {
-    boolean existsByName(String name);
+    boolean existsByName(String name); // Verilen kategori adının veritabanında mevcut olup olmadığını kontrol eder
 }
