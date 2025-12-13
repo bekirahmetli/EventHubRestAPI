@@ -28,4 +28,8 @@ public class Registration {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "registration_user_id",referencedColumnName = "user_id",nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "registration_event_id",referencedColumnName = "event_id",nullable = false)
+    private Event event;
 }
