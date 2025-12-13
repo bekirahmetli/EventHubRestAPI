@@ -38,4 +38,8 @@ public class Event {
 
     @OneToMany(mappedBy = "event",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<TicketType> ticketTypes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_category_id",referencedColumnName = "category_id",nullable = false)
+    private Category category;
 }
