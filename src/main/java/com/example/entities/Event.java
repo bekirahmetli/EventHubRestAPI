@@ -42,4 +42,8 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_category_id",referencedColumnName = "category_id",nullable = false)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_organizer_id",referencedColumnName = "organizer_id",nullable = false)
+    private User organizer;
 }
