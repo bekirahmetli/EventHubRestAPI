@@ -24,4 +24,8 @@ public class Registration {
 
     @Enumerated(EnumType.STRING)
     private RegistrationStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "registration_user_id",referencedColumnName = "user_id",nullable = false)
+    private User user;
 }
