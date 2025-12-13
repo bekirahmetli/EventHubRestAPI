@@ -1,34 +1,53 @@
 package com.example.business.concretes;
 
 import com.example.business.abstracts.ICategoryService;
+import com.example.dao.CategoryRepo;
 import com.example.entities.Category;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryManager implements ICategoryService {
+
+    private final CategoryRepo categoryRepo;
+
+    public CategoryManager(CategoryRepo categoryRepo) {
+        this.categoryRepo = categoryRepo;
+    }
+
+    // Yeni bir kategori oluşturur ve veritabanına kaydeder
     @Override
     public Category save(Category category) {
-        return null;
+        return this.categoryRepo.save(category);
     }
 
+    // Verilen ID’ye sahip kategoriyi getirir, bulunamazsa exception fırlatır
     @Override
     public Category get(Long id) {
-        return null;
+        return this.categoryRepo.findById(id).orElseThrow();
     }
 
+    // Mevcut bir kategoriyi günceller, önce varlığı kontrol edilir
     @Override
     public Category update(Category category) {
-        return null;
+        this.get(category.getId());
+        return this.categoryRepo.save(category);
     }
 
+    // Sayfalama (pagination) ile kategori listesini döner
     @Override
     public Page<Category> cursor(int page, int pageSize) {
-        return null;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return this.categoryRepo.findAll(pageable);
     }
 
+    // Verilen ID’ye sahip kategoriyi siler
     @Override
     public boolean delete(Long id) {
-        return false;
+        Category category = this.get(id);
+        this.categoryRepo.delete(category);
+        return true;
     }
 }
