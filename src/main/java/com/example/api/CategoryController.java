@@ -46,4 +46,12 @@ public class CategoryController {
         Page<Category> categoryPage = this.categoryService.cursor(page,pageSize);
         return categoryPage;
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean delete(@PathVariable("id") Long id){
+        Category category = this.categoryService.get(id);
+        this.categoryService.delete(category.getId());
+        return true;
+    }
 }
