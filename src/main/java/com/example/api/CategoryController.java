@@ -3,6 +3,8 @@ package com.example.api;
 import com.example.business.abstracts.ICategoryService;
 import com.example.entities.Category;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,4 +37,13 @@ public class CategoryController {
         return this.categoryService.update(category);
     }
 
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public Page<Category> cursor(
+            @RequestParam(name = "page",required = false,defaultValue = "0") int page,
+            @RequestParam(name = "pageSize",required = false,defaultValue = "5") int pageSize
+    ){
+        Page<Category> categoryPage = this.categoryService.cursor(page,pageSize);
+        return categoryPage;
+    }
 }
