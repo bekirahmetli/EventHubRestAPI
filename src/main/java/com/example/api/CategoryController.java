@@ -2,6 +2,7 @@ package com.example.api;
 
 import com.example.business.abstracts.ICategoryService;
 import com.example.dto.request.CategorySaveRequest;
+import com.example.dto.request.CategoryUpdateRequest;
 import com.example.dto.response.CategoryResponse;
 import com.example.entities.Category;
 import com.example.mapper.IModelMapperService;
@@ -40,9 +41,10 @@ public class CategoryController {
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
-    public Category update(@Valid @RequestBody Category category){
-        categoryService.get(category.getId());
-        return this.categoryService.update(category);
+    public CategoryResponse update(@Valid @RequestBody CategoryUpdateRequest request){
+        Category updateCategory = this.modelMapperService.forRequest().map(request,Category.class);
+        this.categoryService.update(updateCategory);
+        return this.modelMapperService.forResponse().map(updateCategory,CategoryResponse.class);
     }
 
     @GetMapping()
