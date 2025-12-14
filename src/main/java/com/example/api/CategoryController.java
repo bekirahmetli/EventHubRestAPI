@@ -1,7 +1,10 @@
 package com.example.api;
 
 import com.example.business.abstracts.ICategoryService;
+import com.example.dto.request.CategorySaveRequest;
+import com.example.dto.response.CategoryResponse;
 import com.example.entities.Category;
+import com.example.mapper.IModelMapperService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,15 +16,19 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
     private final ICategoryService categoryService;
+    private final IModelMapperService modelMapperService;
 
-    public CategoryController(ICategoryService categoryService) {
+    public CategoryController(ICategoryService categoryService, IModelMapperService modelMapperService) {
         this.categoryService = categoryService;
+        this.modelMapperService = modelMapperService;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public Category save(@Valid @RequestBody Category category){
-        return this.categoryService.save(category);
+    public CategoryResponse save(@Valid @RequestBody CategorySaveRequest request){
+        Category savedCategory = this.modelMapperService.forRequest().map(request,Category.class);
+        this.categoryService.save(savedCategory);
+        return this.modelMapperService.forResponse().map(savedCategory,CategoryResponse.class);
     }
 
     @GetMapping("/{id}")
