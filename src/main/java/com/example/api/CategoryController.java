@@ -33,8 +33,9 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Category get(@PathVariable("id") Long id){
-        return this.categoryService.get(id);
+    public CategoryResponse get(@PathVariable("id") Long id){
+        Category category = this.categoryService.get(id);
+        return this.modelMapperService.forResponse().map(category,CategoryResponse.class);
     }
 
     @PutMapping()
