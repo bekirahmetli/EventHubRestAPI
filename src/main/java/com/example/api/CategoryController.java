@@ -22,4 +22,10 @@ public class CategoryController {
         return this.categoryService.save(category);
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Category get(@PathVariable("id") Long id){
+        return this.categoryService.get(id);
+    }
+
 }
