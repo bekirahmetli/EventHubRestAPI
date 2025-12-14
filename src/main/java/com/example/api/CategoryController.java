@@ -28,4 +28,11 @@ public class CategoryController {
         return this.categoryService.get(id);
     }
 
+    @PutMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public Category update(@Valid @RequestBody Category category){
+        categoryService.get(category.getId());
+        return this.categoryService.update(category);
+    }
+
 }
