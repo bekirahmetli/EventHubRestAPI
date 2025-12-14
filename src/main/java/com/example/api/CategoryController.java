@@ -4,6 +4,7 @@ import com.example.business.abstracts.ICategoryService;
 import com.example.dto.request.CategorySaveRequest;
 import com.example.dto.request.CategoryUpdateRequest;
 import com.example.dto.response.CategoryResponse;
+import com.example.dto.response.CursorResponse;
 import com.example.entities.Category;
 import com.example.mapper.IModelMapperService;
 import jakarta.validation.Valid;
@@ -49,12 +50,16 @@ public class CategoryController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public Page<Category> cursor(
+    public Page<CategoryResponse> cursor(
             @RequestParam(name = "page",required = false,defaultValue = "0") int page,
             @RequestParam(name = "pageSize",required = false,defaultValue = "5") int pageSize
     ){
         Page<Category> categoryPage = this.categoryService.cursor(page,pageSize);
-        return categoryPage;
+        Page<CategoryResponse> categoryResponsePage = categoryPage.map(category ->
+                this.modelMapperService.forResponse().map(category,CategoryResponse.class)
+        );
+
+        return categoryResponsePage;
     }
 
     @DeleteMapping("/{id}")
