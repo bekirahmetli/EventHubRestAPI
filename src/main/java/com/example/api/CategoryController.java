@@ -7,6 +7,7 @@ import com.example.dto.response.CategoryResponse;
 import com.example.dto.response.CursorResponse;
 import com.example.entities.Category;
 import com.example.mapper.IModelMapperService;
+import com.example.result.ResultData;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,10 +28,11 @@ public class CategoryController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponse save(@Valid @RequestBody CategorySaveRequest request){
+    public ResultData<CategoryResponse> save(@Valid @RequestBody CategorySaveRequest request){
         Category savedCategory = this.modelMapperService.forRequest().map(request,Category.class);
         this.categoryService.save(savedCategory);
-        return this.modelMapperService.forResponse().map(savedCategory,CategoryResponse.class);
+        CategoryResponse response = this.modelMapperService.forResponse().map(savedCategory,CategoryResponse.class);
+        return new ResultData<>(true,"Veri eklendi","201",response);
     }
 
     @GetMapping("/{id}")
