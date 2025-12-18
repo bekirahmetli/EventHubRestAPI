@@ -54,7 +54,7 @@ public class CategoryController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public Page<CategoryResponse> cursor(
+    public ResultData<Page<CategoryResponse>> cursor(
             @RequestParam(name = "page",required = false,defaultValue = "0") int page,
             @RequestParam(name = "pageSize",required = false,defaultValue = "5") int pageSize
     ){
@@ -63,7 +63,7 @@ public class CategoryController {
                 this.modelMapperService.forResponse().map(category,CategoryResponse.class)
         );
 
-        return categoryResponsePage;
+        return new ResultData<>(true,"Veriler listelendi","200",categoryResponsePage);
     }
 
     @DeleteMapping("/{id}")
