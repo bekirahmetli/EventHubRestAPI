@@ -45,10 +45,11 @@ public class CategoryController {
 
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
-    public CategoryResponse update(@Valid @RequestBody CategoryUpdateRequest request){
+    public ResultData<CategoryResponse> update(@Valid @RequestBody CategoryUpdateRequest request){
         Category updateCategory = this.modelMapperService.forRequest().map(request,Category.class);
         this.categoryService.update(updateCategory);
-        return this.modelMapperService.forResponse().map(updateCategory,CategoryResponse.class);
+        CategoryResponse response = this.modelMapperService.forResponse().map(updateCategory,CategoryResponse.class);
+        return new ResultData<>(true,"Veri güncellendi","200",response);
     }
 
     @GetMapping()
