@@ -19,4 +19,15 @@ public class ResultHelper {
     public static <T> ResultData <T> created(T data){
         return new ResultData<>(true,"Kayıt eklendi","201",data);
     }
+
+    /**
+     * Başarılı bir işlem sonrası kullanılan response.
+     *
+     * @param data Client’a döndürülecek veri
+     * @param <T>  Döndürülecek veri tipi
+     * @return     200 status kodu ile oluşturulmuş ResultData
+     */
+    public static <T> ResultData <T> success(T data){
+        return new ResultData<>(true,"İşlem başarılı","200",data);
+    }
 }
