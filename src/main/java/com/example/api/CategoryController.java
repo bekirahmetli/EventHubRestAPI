@@ -8,6 +8,7 @@ import com.example.dto.response.CursorResponse;
 import com.example.entities.Category;
 import com.example.mapper.IModelMapperService;
 import com.example.result.ResultData;
+import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class CategoryController {
         Category savedCategory = this.modelMapperService.forRequest().map(request,Category.class);
         this.categoryService.save(savedCategory);
         CategoryResponse response = this.modelMapperService.forResponse().map(savedCategory,CategoryResponse.class);
-        return new ResultData<>(true,"Veri eklendi","201",response);
+        return ResultHelper.created(response);
     }
 
     @GetMapping("/{id}")
