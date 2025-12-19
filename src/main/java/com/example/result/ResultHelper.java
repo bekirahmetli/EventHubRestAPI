@@ -1,5 +1,8 @@
 package com.example.result;
 
+import com.example.dto.response.CursorResponse;
+import org.springframework.data.domain.Page;
+
 /**
  * API response’ları için hazır Result ve ResultData nesneleri
  * oluşturmaya yardımcı olan helper sınıfı.
@@ -29,5 +32,24 @@ public class ResultHelper {
      */
     public static <T> ResultData <T> success(T data){
         return new ResultData<>(true,"İşlem başarılı","200",data);
+    }
+
+    /**
+     * Sayfalı listeleme işlemleri için kullanılan response helper metodu.
+     *
+     * Page nesnesinden alınan bilgiler ile CursorResponse oluşturur ve
+     * standart success response formatında client’a döner.
+     *
+     * @param pageData Spring Data Page nesnesi
+     * @param <T>      Sayfa içinde yer alan veri tipi
+     * @return         CursorResponse içeren başarılı ResultData
+     */
+    public static <T> ResultData<CursorResponse<T>> cursor (Page<T> pageData) {
+        CursorResponse<T> cursor = new CursorResponse<>();
+        cursor.setItems(pageData.getContent());
+        cursor.setPageNumber(pageData.getNumber());
+        cursor.setPageSize(pageData.getSize());
+        cursor.setTotalElements(pageData.getTotalElements());
+        return ResultHelper.success(cursor);
     }
 }
