@@ -7,6 +7,7 @@ import com.example.dto.response.CategoryResponse;
 import com.example.dto.response.CursorResponse;
 import com.example.entities.Category;
 import com.example.mapper.IModelMapperService;
+import com.example.result.Result;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
@@ -15,6 +16,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Endpoint’ler:
+ * - POST    /v1/categories        → Kategori oluşturma
+ * - GET     /v1/categories/{id}   → ID ile kategori getirme
+ * - PUT     /v1/categories        → Kategori güncelleme
+ * - GET     /v1/categories        → Sayfalı kategori listeleme
+ * - DELETE  /v1/categories/{id}   → Kategori silme
+ */
 @RestController
 @RequestMapping("/v1/categories")
 public class CategoryController {
@@ -69,9 +78,9 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public boolean delete(@PathVariable("id") Long id){
+    public Result delete(@PathVariable("id") Long id){
         Category category = this.categoryService.get(id);
         this.categoryService.delete(category.getId());
-        return true;
+        return ResultHelper.ok();
     }
 }
