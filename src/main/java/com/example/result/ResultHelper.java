@@ -52,4 +52,9 @@ public class ResultHelper {
         cursor.setTotalElements(pageData.getTotalElements());
         return ResultHelper.success(cursor);
     }
+
+
+    public static Result ok(){
+        return new Result(true,"İşlem başarılı","200");
+    }
 }
