@@ -41,7 +41,7 @@ public class CategoryController {
     public ResultData<CategoryResponse> get(@PathVariable("id") Long id){
         Category category = this.categoryService.get(id);
         CategoryResponse response = this.modelMapperService.forResponse().map(category,CategoryResponse.class);
-        return new ResultData<>(true,"Veri getirildi","200",response);
+        return ResultHelper.success(response);
     }
 
     @PutMapping()
