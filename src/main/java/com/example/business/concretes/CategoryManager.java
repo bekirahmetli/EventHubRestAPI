@@ -3,6 +3,8 @@ package com.example.business.concretes;
 import com.example.business.abstracts.ICategoryService;
 import com.example.dao.CategoryRepo;
 import com.example.entities.Category;
+import com.example.exception.AlreadyExistsException;
+import com.example.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,19 +22,26 @@ public class CategoryManager implements ICategoryService {
     // Yeni bir kategori oluşturur ve veritabanına kaydeder
     @Override
     public Category save(Category category) {
+        if (this.categoryRepo.existsByName(category.getName())){
+            // Duplicate name kontrolü
+            throw new AlreadyExistsException("Bu kategori adı zaten mevcut: " + category.getName());
+        }
         return this.categoryRepo.save(category);
     }
 
     // Verilen ID’ye sahip kategoriyi getirir, bulunamazsa exception fırlatır
     @Override
     public Category get(Long id) {
-        return this.categoryRepo.findById(id).orElseThrow();
+        return this.categoryRepo.findById(id).orElseThrow(() -> new NotFoundException("Veri bulunamadı"));
     }
 
     // Mevcut bir kategoriyi günceller, önce varlığı kontrol edilir
     @Override
     public Category update(Category category) {
-        this.get(category.getId());
+        Category existingCategory = this.get(category.getId());
+        if (!existingCategory.getName().equals(category.getName()) && this.categoryRepo.existsByName(category.getName())){
+            throw new AlreadyExistsException("Bu kategori adı zaten mevcut: " + category.getName());
+        }
         return this.categoryRepo.save(category);
     }
 
