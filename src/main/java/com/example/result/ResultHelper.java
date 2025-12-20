@@ -61,4 +61,12 @@ public class ResultHelper {
     public static Result notFoundError(String msg){
         return new Result(false,msg,"404");
     }
+
+    /**
+     * Conflict (409) hatası için kullanılan response.
+     * Genellikle duplicate kayıt veya çakışma durumlarında kullanılır.
+     */
+    public static Result conflictError(String msg) {
+        return new Result(false, msg, "409");
+    }
 }
