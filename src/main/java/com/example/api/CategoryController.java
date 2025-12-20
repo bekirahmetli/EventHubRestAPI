@@ -79,8 +79,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id){
-        Category category = this.categoryService.get(id);
-        this.categoryService.delete(category.getId());
+        this.categoryService.delete(id);
         return ResultHelper.ok();
     }
 }
