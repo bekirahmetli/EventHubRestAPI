@@ -57,4 +57,8 @@ public class ResultHelper {
     public static Result ok(){
         return new Result(true,"İşlem başarılı","200");
     }
+
+    public static Result notFoundError(String msg){
+        return new Result(false,msg,"404");
+    }
 }
