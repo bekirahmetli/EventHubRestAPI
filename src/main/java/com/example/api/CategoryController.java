@@ -39,8 +39,8 @@ public class CategoryController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<CategoryResponse> save(@Valid @RequestBody CategorySaveRequest request){
-        Category savedCategory = this.modelMapperService.forRequest().map(request,Category.class);
-        this.categoryService.save(savedCategory);
+        Category categoryToSave = this.modelMapperService.forRequest().map(request,Category.class);
+        Category savedCategory = this.categoryService.save(categoryToSave);
         CategoryResponse response = this.modelMapperService.forResponse().map(savedCategory,CategoryResponse.class);
         return ResultHelper.created(response);
     }
@@ -56,9 +56,9 @@ public class CategoryController {
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ResultData<CategoryResponse> update(@Valid @RequestBody CategoryUpdateRequest request){
-        Category updateCategory = this.modelMapperService.forRequest().map(request,Category.class);
-        this.categoryService.update(updateCategory);
-        CategoryResponse response = this.modelMapperService.forResponse().map(updateCategory,CategoryResponse.class);
+        Category categoryToUpdate = this.modelMapperService.forRequest().map(request,Category.class);
+        Category updatedCategory = this.categoryService.update(categoryToUpdate);
+        CategoryResponse response = this.modelMapperService.forResponse().map(updatedCategory,CategoryResponse.class);
         return ResultHelper.success(response);
     }
 
