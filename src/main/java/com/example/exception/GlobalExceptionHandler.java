@@ -49,5 +49,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result> handleNotFoundException(NotFoundException e){
         return new ResponseEntity<>(ResultHelper.notFoundError(e.getMessage()),HttpStatus.NOT_FOUND);
     }
+
+    /**
+     * Aynı değerle kayıt zaten mevcut olduğunda fırlatılan AlreadyExistsException'ı yakalar.
+     *
+     * @param e AlreadyExistsException
+     * @return 409 CONFLICT içeren standart hata response'u
+     */
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<Result> handleAlreadyExistsException(AlreadyExistsException e) {
+        return new ResponseEntity<>(ResultHelper.conflictError(e.getMessage()), HttpStatus.CONFLICT);
+    }
 }
 
