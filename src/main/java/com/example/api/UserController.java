@@ -39,4 +39,14 @@ public class UserController {
         UserResponse response = this.modelMapperService.forResponse().map(savedUser,UserResponse.class);
         return ResultHelper.created(response);
     }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<UserResponse> get(@PathVariable("id") Long id){
+        User user = this.userService.get(id);
+        UserResponse response = this.modelMapperService.forResponse().map(user,UserResponse.class);
+        return ResultHelper.success(response);
+    }
+
+
 }
