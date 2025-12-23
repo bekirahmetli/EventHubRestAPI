@@ -7,6 +7,7 @@ import com.example.dto.response.CursorResponse;
 import com.example.dto.response.UserResponse;
 import com.example.entities.User;
 import com.example.mapper.IModelMapperService;
+import com.example.result.Result;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
@@ -72,5 +73,12 @@ public class UserController {
         );
 
         return ResultHelper.cursor(userResponsePage);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Result delete(@PathVariable("id") Long id){
+        this.userService.delete(id);
+        return ResultHelper.ok();
     }
 }
