@@ -2,6 +2,7 @@ package com.example.api;
 
 import com.example.business.abstracts.IUserService;
 import com.example.dto.request.user.UserSaveRequest;
+import com.example.dto.request.user.UserUpdateRequest;
 import com.example.dto.response.UserResponse;
 import com.example.entities.User;
 import com.example.mapper.IModelMapperService;
@@ -48,5 +49,12 @@ public class UserController {
         return ResultHelper.success(response);
     }
 
-
+    @PutMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<UserResponse> update(@Valid @RequestBody UserUpdateRequest request){
+        User userToUpdate = this.modelMapperService.forRequest().map(request, User.class);
+        User updatedUser = this.userService.update(userToUpdate);
+        UserResponse response = this.modelMapperService.forResponse().map(updatedUser, UserResponse.class);
+        return ResultHelper.success(response);
+    }
 }
