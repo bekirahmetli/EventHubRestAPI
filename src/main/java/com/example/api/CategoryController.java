@@ -1,8 +1,8 @@
 package com.example.api;
 
 import com.example.business.abstracts.ICategoryService;
-import com.example.dto.request.CategorySaveRequest;
-import com.example.dto.request.CategoryUpdateRequest;
+import com.example.dto.request.category.CategorySaveRequest;
+import com.example.dto.request.category.CategoryUpdateRequest;
 import com.example.dto.response.CategoryResponse;
 import com.example.dto.response.CursorResponse;
 import com.example.entities.Category;
@@ -12,7 +12,6 @@ import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
