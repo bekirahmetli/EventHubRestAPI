@@ -1,4 +1,4 @@
-package com.example.dto.request;
+package com.example.dto.request.user;
 
 import com.example.enums.AuthProvider;
 import com.example.enums.Role;
