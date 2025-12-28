@@ -62,7 +62,7 @@ public class EventController {
         return ResultHelper.created(response);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResultData<EventResponse> get(@PathVariable("id") Long id){
         Event event = this.eventService.get(id);
@@ -84,7 +84,7 @@ public class EventController {
         return ResultHelper.cursor(eventResponsePage);
     }
 
-    @PutMapping("{id}")
+    @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public ResultData<EventResponse> update(@Valid @RequestBody EventUpdateRequest request){
         Event eventToUpdate = this.modelMapperService.forRequest().map(request,Event.class);
@@ -104,7 +104,7 @@ public class EventController {
         return ResultHelper.success(response);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Result delete(@PathVariable("id") Long id){
         this.eventService.delete(id);
