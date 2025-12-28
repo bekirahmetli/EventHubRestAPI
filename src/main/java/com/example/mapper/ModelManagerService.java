@@ -1,5 +1,7 @@
 package com.example.mapper;
 
+import com.example.dto.response.EventResponse;
+import com.example.entities.Event;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
@@ -36,5 +38,31 @@ public class ModelManagerService implements IModelMapperService{
     public ModelMapper forResponse() {
         this.modelMapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.LOOSE);
         return this.modelMapper;
+    }
+    /**
+     * Event entity’si için özel response mapping’leri sağlayan ModelMapper.
+     *
+     * Amaç:
+     * - Nested entity alanlarını (Category, User) düzleştirerek
+     *   EventResponse DTO’suna map etmek
+     * - Controller katmanında manuel mapping ihtiyacını ortadan kaldırmak
+     *
+     * @return Event → EventResponse dönüşümleri için özel yapılandırılmış ModelMapper
+     */
+    @Override
+    public ModelMapper forEventResponse() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.LOOSE);
+
+        // Event -> EventResponse için custom mapping
+        mapper.typeMap(Event.class, EventResponse.class)
+                .addMappings(m -> {
+                    m.map(src -> src.getCategory().getId(), EventResponse::setCategoryId);
+                    m.map(src -> src.getCategory().getName(), EventResponse::setCategoryName);
+                    m.map(src -> src.getUser().getId(), EventResponse::setUserId);
+                    m.map(src -> src.getUser().getName(), EventResponse::setOrganizerName);
+                });
+
+        return mapper;
     }
 }
