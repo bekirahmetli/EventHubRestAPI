@@ -4,6 +4,7 @@ import com.example.business.abstracts.IEventService;
 import com.example.dao.CategoryRepo;
 import com.example.dao.UserRepo;
 import com.example.dto.request.event.EventSaveRequest;
+import com.example.dto.response.CursorResponse;
 import com.example.dto.response.EventResponse;
 import com.example.entities.Category;
 import com.example.entities.Event;
@@ -12,6 +13,7 @@ import com.example.mapper.IModelMapperService;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,6 +66,20 @@ public class EventController {
         Event event = this.eventService.get(id);
         EventResponse response = this.modelMapperService.forEventResponse().map(event,EventResponse.class);
         return ResultHelper.success(response);
+    }
+
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<CursorResponse<EventResponse>> cursor(
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "5") int pageSize
+    ){
+        Page<Event> eventPage = this.eventService.cursor(page,pageSize);
+        Page<EventResponse> eventResponsePage = eventPage.map(event ->
+                this.modelMapperService.forEventResponse().map(event,EventResponse.class)
+        );
+
+        return ResultHelper.cursor(eventResponsePage);
     }
 
 }
