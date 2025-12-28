@@ -11,6 +11,7 @@ import com.example.entities.Category;
 import com.example.entities.Event;
 import com.example.entities.User;
 import com.example.mapper.IModelMapperService;
+import com.example.result.Result;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
@@ -101,6 +102,13 @@ public class EventController {
         EventResponse response = this.modelMapperService.forEventResponse().map(updatedEvent,EventResponse.class);
 
         return ResultHelper.success(response);
+    }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Result delete(@PathVariable("id") Long id){
+        this.eventService.delete(id);
+        return ResultHelper.ok();
     }
 
 }
