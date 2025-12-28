@@ -57,4 +57,13 @@ public class EventController {
 
         return ResultHelper.created(response);
     }
+
+    @GetMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<EventResponse> get(@PathVariable("id") Long id){
+        Event event = this.eventService.get(id);
+        EventResponse response = this.modelMapperService.forEventResponse().map(event,EventResponse.class);
+        return ResultHelper.success(response);
+    }
+
 }
