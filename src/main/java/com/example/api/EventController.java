@@ -4,6 +4,7 @@ import com.example.business.abstracts.IEventService;
 import com.example.dao.CategoryRepo;
 import com.example.dao.UserRepo;
 import com.example.dto.request.event.EventSaveRequest;
+import com.example.dto.request.event.EventUpdateRequest;
 import com.example.dto.response.CursorResponse;
 import com.example.dto.response.EventResponse;
 import com.example.entities.Category;
@@ -80,6 +81,26 @@ public class EventController {
         );
 
         return ResultHelper.cursor(eventResponsePage);
+    }
+
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<EventResponse> update(@Valid @RequestBody EventUpdateRequest request){
+        Event eventToUpdate = this.modelMapperService.forRequest().map(request,Event.class);
+
+        Category category = this.categoryRepo.findById(request.getCategoryId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Kategori bulunamadı. ID: " + request.getCategoryId()));
+
+        User user = this.userRepo.findById(request.getUserId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Kullanıcı bulunamadı. ID: " + request.getUserId()));
+
+        eventToUpdate.setCategory(category);
+        eventToUpdate.setUser(user);
+
+        Event updatedEvent = this.eventService.update(eventToUpdate);
+        EventResponse response = this.modelMapperService.forEventResponse().map(updatedEvent,EventResponse.class);
+
+        return ResultHelper.success(response);
     }
 
 }
