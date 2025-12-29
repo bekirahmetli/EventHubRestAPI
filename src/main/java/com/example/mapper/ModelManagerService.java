@@ -1,7 +1,9 @@
 package com.example.mapper;
 
 import com.example.dto.response.EventResponse;
+import com.example.dto.response.TicketTypeResponse;
 import com.example.entities.Event;
+import com.example.entities.TicketType;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,32 @@ public class ModelManagerService implements IModelMapperService{
                     m.map(src -> src.getCategory().getName(), EventResponse::setCategoryName);
                     m.map(src -> src.getUser().getId(), EventResponse::setUserId);
                     m.map(src -> src.getUser().getName(), EventResponse::setOrganizerName);
+                });
+
+        return mapper;
+    }
+
+    /**
+     * TicketType entity'si için özel response mapping'leri sağlayan ModelMapper.
+     *
+     * Amaç:
+     * - Nested entity alanlarını (Event) düzleştirerek
+     *   TicketTypeResponse DTO'suna map etmek
+     * - Controller katmanında manuel mapping ihtiyacını ortadan kaldırmak
+     *
+     * @return TicketType → TicketTypeResponse dönüşümleri için özel yapılandırılmış ModelMapper
+     */
+    @Override
+    public ModelMapper forTicketTypeResponse() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration()
+                .setAmbiguityIgnored(true)
+                .setMatchingStrategy(MatchingStrategies.LOOSE);
+
+        mapper.typeMap(TicketType.class, TicketTypeResponse.class)
+                .addMappings(m -> {
+                    m.map(src -> src.getEvent().getId(), TicketTypeResponse::setEventId);
+                    m.map(src -> src.getEvent().getTitle(), TicketTypeResponse::setEventTitle);
                 });
 
         return mapper;
