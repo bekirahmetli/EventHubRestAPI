@@ -60,5 +60,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Result> handleAlreadyExistsException(AlreadyExistsException e) {
         return new ResponseEntity<>(ResultHelper.conflictError(e.getMessage()), HttpStatus.CONFLICT);
     }
+
+    /**
+     * Event bulunamadığında fırlatılan EventNotFoundException'ı yakalar.
+     *
+     * @param e EventNotFoundException
+     * @return 404 NOT FOUND içeren standart hata response'u
+     */
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<Result> handleEventNotFoundException(EventNotFoundException e) {
+        return new ResponseEntity<>(ResultHelper.notFoundError(e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Resim yükleme hatası durumunda fırlatılan ImageUploadException'ı yakalar.
+     *
+     * @param e ImageUploadException
+     * @return 400 BAD REQUEST içeren standart hata response'u
+     */
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<Result> handleImageUploadException(ImageUploadException e) {
+        return new ResponseEntity<>(ResultHelper.badRequestError(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
 }
 
