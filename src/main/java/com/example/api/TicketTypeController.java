@@ -17,7 +17,18 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Endpoint'ler:
+ * - POST    /v1/ticket-types           → Bilet tipi oluşturma
+ * - GET     /v1/ticket-types/{id}      → ID ile bilet tipi getirme
+ * - PUT     /v1/ticket-types           → Bilet tipi güncelleme
+ * - GET     /v1/ticket-types           → Sayfalı bilet tipi listeleme
+ * - DELETE  /v1/ticket-types/{id}      → Bilet tipi silme
+ * - GET     /v1/ticket-types/event/{eventId} → Etkinliğe ait tüm bilet tiplerini listeleme
+ */
 @RestController
 @RequestMapping("/v1/ticket-types")
 public class TicketTypeController {
@@ -60,7 +71,7 @@ public class TicketTypeController {
         TicketType ticketTypeToUpdate = this.modelMapperService.forRequest().map(request, TicketType.class);
 
         Event event = this.eventRepo.findById(request.getEventId())
-                .orElseThrow(() -> new com.example.exception.NotFoundException("Etkinlik bulunamadı. ID: " + request.getEventId()));
+                .orElseThrow(() -> new NotFoundException("Etkinlik bulunamadı. ID: " + request.getEventId()));
 
         ticketTypeToUpdate.setEvent(event);
 
@@ -89,5 +100,17 @@ public class TicketTypeController {
     public Result delete(@PathVariable("id") Long id) {
         this.ticketTypeService.delete(id);
         return ResultHelper.ok();
+    }
+
+    @GetMapping("/event/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<TicketTypeResponse>> getByEvent(@PathVariable("eventId") Long eventId) {
+        List<TicketType> ticketTypes = this.ticketTypeService.getByEventId(eventId);
+
+        List<TicketTypeResponse> ticketTypeResponses = ticketTypes.stream()
+                .map(ticketType -> this.modelMapperService.forTicketTypeResponse().map(ticketType, TicketTypeResponse.class))
+                .collect(Collectors.toList());
+
+        return ResultHelper.success(ticketTypeResponses);
     }
 }
