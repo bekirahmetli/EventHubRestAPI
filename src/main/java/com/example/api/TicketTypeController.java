@@ -10,6 +10,7 @@ import com.example.entities.Event;
 import com.example.entities.TicketType;
 import com.example.exception.NotFoundException;
 import com.example.mapper.IModelMapperService;
+import com.example.result.Result;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
@@ -81,5 +82,12 @@ public class TicketTypeController {
         );
 
         return ResultHelper.cursor(ticketTypeResponsePage);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Result delete(@PathVariable("id") Long id) {
+        this.ticketTypeService.delete(id);
+        return ResultHelper.ok();
     }
 }
