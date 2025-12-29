@@ -3,6 +3,7 @@ package com.example.api;
 import com.example.business.abstracts.ITicketTypeService;
 import com.example.dao.EventRepo;
 import com.example.dto.request.ticketType.TicketTypeSaveRequest;
+import com.example.dto.request.ticketType.TicketTypeUpdateRequest;
 import com.example.dto.response.TicketTypeResponse;
 import com.example.entities.Event;
 import com.example.entities.TicketType;
@@ -47,6 +48,22 @@ public class TicketTypeController {
     public ResultData<TicketTypeResponse> get(@PathVariable("id") Long id) {
         TicketType ticketType = this.ticketTypeService.get(id);
         TicketTypeResponse response = this.modelMapperService.forTicketTypeResponse().map(ticketType, TicketTypeResponse.class);
+        return ResultHelper.success(response);
+    }
+
+    @PutMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<TicketTypeResponse> update(@Valid @RequestBody TicketTypeUpdateRequest request) {
+        TicketType ticketTypeToUpdate = this.modelMapperService.forRequest().map(request, TicketType.class);
+
+        Event event = this.eventRepo.findById(request.getEventId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Etkinlik bulunamadı. ID: " + request.getEventId()));
+
+        ticketTypeToUpdate.setEvent(event);
+
+        TicketType updatedTicketType = this.ticketTypeService.update(ticketTypeToUpdate);
+        TicketTypeResponse response = this.modelMapperService.forTicketTypeResponse().map(updatedTicketType, TicketTypeResponse.class);
+
         return ResultHelper.success(response);
     }
 }
