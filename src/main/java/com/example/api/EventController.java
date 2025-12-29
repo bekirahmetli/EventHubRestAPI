@@ -1,6 +1,7 @@
 package com.example.api;
 
 import com.example.business.abstracts.IEventService;
+import com.example.business.abstracts.IImageStorageService;
 import com.example.dao.CategoryRepo;
 import com.example.dao.UserRepo;
 import com.example.dto.request.event.EventSaveRequest;
@@ -17,17 +18,22 @@ import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
  * Endpoint'ler:
- * - POST    /v1/events        → Etkinlik oluşturma
- * - GET     /v1/events/{id}   → ID ile etkinlik getirme
- * - PUT     /v1/events        → Etkinlik güncelleme
- * - GET     /v1/events        → Sayfalı etkinlik listeleme
- * - DELETE  /v1/events/{id}   → Etkinlik silme
+ * - POST    /v1/events              → Etkinlik oluşturma (JSON)
+ * - POST    /v1/events/with-poster → Etkinlik oluşturma (Multipart - Poster ile)
+ * - GET     /v1/events/{id}         → ID ile etkinlik getirme
+ * - PUT     /v1/events              → Etkinlik güncelleme
+ * - GET     /v1/events              → Sayfalı etkinlik listeleme
+ * - GET     /v1/events/category/{categoryId} → Kategoriye göre etkinlikler
+ * - GET     /v1/events/organizer/{organizerId} → Organizer'a göre etkinlikler
+ * - DELETE  /v1/events/{id}        → Etkinlik silme
  */
 @RestController
 @RequestMapping("/v1/events")
@@ -36,12 +42,14 @@ public class EventController {
     private final IModelMapperService modelMapperService;
     private final CategoryRepo categoryRepo;
     private final UserRepo userRepo;
+    private final IImageStorageService imageStorageService;
 
-    public EventController(IEventService eventService, IModelMapperService modelMapperService, CategoryRepo categoryRepo, UserRepo userRepo) {
+    public EventController(IEventService eventService, IModelMapperService modelMapperService, CategoryRepo categoryRepo, UserRepo userRepo, IImageStorageService imageStorageService) {
         this.eventService = eventService;
         this.modelMapperService = modelMapperService;
         this.categoryRepo = categoryRepo;
         this.userRepo = userRepo;
+        this.imageStorageService = imageStorageService;
     }
 
     @PostMapping()
@@ -135,5 +143,39 @@ public class EventController {
                 .collect(java.util.stream.Collectors.toList());
 
         return ResultHelper.success(eventResponses);
+    }
+
+
+    @PostMapping(value = "/with-poster", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<EventResponse> posterSave(
+            @Valid @ModelAttribute EventSaveRequest request,
+            @RequestPart("poster") MultipartFile poster
+    ) {
+        String posterUrl = imageStorageService.save(poster); // Poster görseli storage’a kaydedilir
+
+        Event event = new Event();
+        event.setTitle(request.getTitle());
+        event.setDescription(request.getDescription());
+        event.setLocation(request.getLocation());
+        event.setDate(request.getDate());
+        event.setPosterUrl(posterUrl);
+
+        // Category doğrulaması
+        Category category = this.categoryRepo.findById(request.getCategoryId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Kategori bulunamadı. ID: " + request.getCategoryId()));
+
+        // User doğrulaması
+        User user = this.userRepo.findById(request.getUserId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Kullanıcı bulunamadı. ID: " + request.getUserId()));
+
+        event.setCategory(category);
+        event.setUser(user);
+
+        // Event kaydedilir
+        Event saved = eventService.save(event);
+        // Entity → Response DTO dönüşümü
+        EventResponse response = this.modelMapperService.forEventResponse().map(saved, EventResponse.class);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
