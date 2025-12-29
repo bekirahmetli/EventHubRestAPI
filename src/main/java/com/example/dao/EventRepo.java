@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EventRepo extends JpaRepository<Event,Long> {
-    List<Event> findByCategoryId(Long categoryId);
-    List<Event> findByOrganizerId(Long organizerId);
+    List<Event> findByCategoryId(Long categoryId);//Belirli bir kategoriye ait tüm etkinlikleri getirir.
+    List<Event> findByUserId(Long userId);// Belirli bir kullanıcıya ait tüm etkinlikleri getirir.
 }
