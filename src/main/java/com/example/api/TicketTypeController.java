@@ -41,4 +41,12 @@ public class TicketTypeController {
         TicketTypeResponse response = this.modelMapperService.forTicketTypeResponse().map(savedTicketType, TicketTypeResponse.class);
         return ResultHelper.created(response);
     }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<TicketTypeResponse> get(@PathVariable("id") Long id) {
+        TicketType ticketType = this.ticketTypeService.get(id);
+        TicketTypeResponse response = this.modelMapperService.forTicketTypeResponse().map(ticketType, TicketTypeResponse.class);
+        return ResultHelper.success(response);
+    }
 }
