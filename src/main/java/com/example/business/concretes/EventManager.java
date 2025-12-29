@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Event entity’si için iş kurallarını ve CRUD operasyonlarını yöneten servis sınıfı.
  *
@@ -110,5 +112,17 @@ public class EventManager implements IEventService {
         Event event = this.get(id);
         this.eventRepo.delete(event);
         return true;
+    }
+
+    //Belirli bir kategoriye ait tüm etkinlikleri getirir.
+    @Override
+    public List<Event> getByCategory(Long categoryId) {
+        return this.eventRepo.findByCategoryId(categoryId);
+    }
+
+    //Belirli bir kullanıcıya ait tüm etkinlikleri getirir.
+    @Override
+    public List<Event> getByUser(Long userId) {
+        return this.eventRepo.findByUserId(userId);
     }
 }
