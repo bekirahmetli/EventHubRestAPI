@@ -69,4 +69,13 @@ public class ResultHelper {
     public static Result conflictError(String msg) {
         return new Result(false, msg, "409");
     }
+
+    /**
+     * 400 Bad Request durumları için kullanılan standart hata response’u oluşturur.
+     * @param msg Client’a döndürülecek hata mesajı
+     * @return   400 hata kodu içeren Result nesnesi
+     */
+    public static Result badRequestError(String msg) {
+        return new Result(false, msg, "400");
+    }
 }
