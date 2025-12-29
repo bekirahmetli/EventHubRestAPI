@@ -124,4 +124,16 @@ public class EventController {
 
         return ResultHelper.success(eventResponses);
     }
+
+    @GetMapping("/user/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<EventResponse>> getByUser(@PathVariable("userId") Long userId) {
+        List<Event> events = this.eventService.getByUser(userId);
+
+        List<EventResponse> eventResponses = events.stream()
+                .map(event -> this.modelMapperService.forEventResponse().map(event,EventResponse.class))
+                .collect(java.util.stream.Collectors.toList());
+
+        return ResultHelper.success(eventResponses);
+    }
 }
