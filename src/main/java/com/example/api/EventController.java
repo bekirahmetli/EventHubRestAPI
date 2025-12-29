@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Endpoint'ler:
  * - POST    /v1/events        → Etkinlik oluşturma
@@ -111,4 +113,15 @@ public class EventController {
         return ResultHelper.ok();
     }
 
+    @GetMapping("/category/{categoryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<EventResponse>> getByCategory(@PathVariable("categoryId") Long categoryId) {
+        List<Event> events = this.eventService.getByCategory(categoryId);
+
+        List<EventResponse> eventResponses = events.stream()
+                .map(event -> this.modelMapperService.forEventResponse().map(event,EventResponse.class))
+                .collect(java.util.stream.Collectors.toList());
+
+        return ResultHelper.success(eventResponses);
+    }
 }
