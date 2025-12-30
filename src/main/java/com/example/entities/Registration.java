@@ -30,6 +30,10 @@ public class Registration {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "registration_event_id",referencedColumnName = "event_id",nullable = false)
-    private Event event;
+    @JoinColumn(
+            name = "registration_ticket_type_id",
+            referencedColumnName = "ticket_type_id",
+            nullable = false
+    )
+    private TicketType ticketType;
 }
