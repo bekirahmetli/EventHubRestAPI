@@ -13,4 +13,5 @@ public interface IRegistrationService {
     Page<Registration> cursor(int page, int pageSize);
     boolean delete(Long id);
     List<Registration> getByUser(Long userId); // Kullanıcıya göre kayıtları getirir
+    List<Registration> getByTicketType(Long ticketTypeId); // Bilet türüne göre kayıtları getirir
 }
