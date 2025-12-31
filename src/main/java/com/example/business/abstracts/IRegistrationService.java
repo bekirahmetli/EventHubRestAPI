@@ -9,4 +9,5 @@ public interface IRegistrationService {
     Registration get(Long id);
     Registration update(Registration registration);
     Page<Registration> cursor(int page, int pageSize);
+    boolean delete(Long id);
 }
