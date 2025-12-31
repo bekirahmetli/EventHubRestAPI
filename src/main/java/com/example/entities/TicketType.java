@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "ticket_types")
 @Data
@@ -28,4 +30,7 @@ public class TicketType {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_type_event_id",referencedColumnName = "event_id",nullable = false)
     private Event event;
+
+    @OneToMany(mappedBy = "ticketType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Registration> registrations;
 }
