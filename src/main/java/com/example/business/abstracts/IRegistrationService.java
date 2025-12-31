@@ -3,6 +3,8 @@ package com.example.business.abstracts;
 import com.example.entities.Registration;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface IRegistrationService {
     //Registration entity için temel CRUD (Create, Read, Update, Delete) ve listeleme işlemleri
     Registration save(Registration registration);
@@ -10,4 +12,5 @@ public interface IRegistrationService {
     Registration update(Registration registration);
     Page<Registration> cursor(int page, int pageSize);
     boolean delete(Long id);
+    List<Registration> getByUser(Long userId); // Kullanıcıya göre kayıtları getirir
 }
