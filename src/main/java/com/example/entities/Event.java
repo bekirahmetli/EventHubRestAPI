@@ -33,9 +33,6 @@ public class Event {
     @Column(name = "date")
     private LocalDateTime date;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Registration> registrations;
-
     @OneToMany(mappedBy = "event",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<TicketType> ticketTypes;
 
