@@ -7,6 +7,7 @@ import com.example.dao.UserRepo;
 import com.example.entities.Registration;
 import com.example.entities.TicketType;
 import com.example.entities.User;
+import com.example.enums.RegistrationStatus;
 import com.example.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -127,5 +128,10 @@ public class RegistrationManager implements IRegistrationService {
     @Override
     public List<Registration> getByTicketType(Long ticketTypeId) {
         return this.registrationRepo.findByTicketTypeId(ticketTypeId);
+    }
+
+    @Override
+    public List<Registration> getByStatus(RegistrationStatus status) {
+        return this.registrationRepo.findByStatus(status);
     }
 }
