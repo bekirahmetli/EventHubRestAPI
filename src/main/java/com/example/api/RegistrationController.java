@@ -11,6 +11,7 @@ import com.example.entities.Registration;
 import com.example.entities.TicketType;
 import com.example.entities.User;
 import com.example.mapper.IModelMapperService;
+import com.example.result.Result;
 import com.example.result.ResultData;
 import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
@@ -125,5 +126,12 @@ public class RegistrationController {
                 .collect(Collectors.toList());
 
         return ResultHelper.success(registrationResponses);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Result delete(@PathVariable("id") Long id) {
+        this.registrationService.delete(id);
+        return ResultHelper.ok();
     }
 }
