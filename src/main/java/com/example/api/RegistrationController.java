@@ -18,6 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/v1/registrations")
 public class RegistrationController {
@@ -98,5 +101,17 @@ public class RegistrationController {
         );
 
         return ResultHelper.cursor(registrationResponsePage);
+    }
+
+    @GetMapping("/user/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<RegistrationResponse>> getByUser(@PathVariable("userId") Long userId) {
+        List<Registration> registrations = this.registrationService.getByUser(userId);
+
+        List<RegistrationResponse> registrationResponses = registrations.stream()
+                .map(registration -> this.modelMapperService.forRegistrationResponse().map(registration, RegistrationResponse.class))
+                .collect(Collectors.toList());
+
+        return ResultHelper.success(registrationResponses);
     }
 }
