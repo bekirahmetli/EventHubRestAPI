@@ -4,6 +4,7 @@ import com.example.business.abstracts.IRegistrationService;
 import com.example.dao.TicketTypeRepo;
 import com.example.dao.UserRepo;
 import com.example.dto.request.registration.RegistrationSaveRequest;
+import com.example.dto.request.registration.RegistrationUpdateRequest;
 import com.example.dto.response.RegistrationResponse;
 import com.example.entities.Registration;
 import com.example.entities.TicketType;
@@ -60,6 +61,26 @@ public class RegistrationController {
     public ResultData<RegistrationResponse> get(@PathVariable("id") Long id) {
         Registration registration = this.registrationService.get(id);
         RegistrationResponse response = this.modelMapperService.forRegistrationResponse().map(registration, RegistrationResponse.class);
+        return ResultHelper.success(response);
+    }
+
+    @PutMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<RegistrationResponse> update(@Valid @RequestBody RegistrationUpdateRequest request) {
+        Registration registrationToUpdate = this.modelMapperService.forRequest().map(request, Registration.class);
+
+        User user = this.userRepo.findById(request.getUserId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Kullanıcı bulunamadı. ID: " + request.getUserId()));
+
+        TicketType ticketType = this.ticketTypeRepo.findById(request.getTicketTypeId())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Bilet türü bulunamadı. ID: " + request.getTicketTypeId()));
+
+        registrationToUpdate.setUser(user);
+        registrationToUpdate.setTicketType(ticketType);
+
+        Registration updatedRegistration = this.registrationService.update(registrationToUpdate);
+        RegistrationResponse response = this.modelMapperService.forRegistrationResponse().map(updatedRegistration, RegistrationResponse.class);
+
         return ResultHelper.success(response);
     }
 }
