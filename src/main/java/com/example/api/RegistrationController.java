@@ -10,6 +10,7 @@ import com.example.dto.response.RegistrationResponse;
 import com.example.entities.Registration;
 import com.example.entities.TicketType;
 import com.example.entities.User;
+import com.example.enums.RegistrationStatus;
 import com.example.mapper.IModelMapperService;
 import com.example.result.Result;
 import com.example.result.ResultData;
@@ -18,10 +19,19 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Endpoint'ler:
+ * - POST    /v1/registrations        → Kayıt oluşturma
+ * - GET     /v1/registrations/{id}   → ID ile kayıt getirme
+ * - PUT     /v1/registrations        → Kayıt güncelleme
+ * - GET     /v1/registrations        → Sayfalı kayıt listeleme
+ * - GET     /v1/registrations/user/{userId} → Kullanıcıya göre kayıtlar
+ * - GET     /v1/registrations/ticket-type/{ticketTypeId} → Bilet türüne göre kayıtlar
+ * - DELETE  /v1/registrations/{id}   → Kayıt silme
+ */
 @RestController
 @RequestMapping("/v1/registrations")
 public class RegistrationController {
@@ -133,5 +143,17 @@ public class RegistrationController {
     public Result delete(@PathVariable("id") Long id) {
         this.registrationService.delete(id);
         return ResultHelper.ok();
+    }
+
+    @GetMapping("/status/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<RegistrationResponse>> getByStatus(@PathVariable("status") RegistrationStatus status) {
+        List<Registration> registrations = this.registrationService.getByStatus(status);
+
+        List<RegistrationResponse> registrationResponses = registrations.stream()
+                .map(registration -> this.modelMapperService.forRegistrationResponse().map(registration, RegistrationResponse.class))
+                .collect(Collectors.toList());
+
+        return ResultHelper.success(registrationResponses);
     }
 }
