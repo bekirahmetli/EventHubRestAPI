@@ -15,4 +15,5 @@ public interface IModelMapperService {
     ModelMapper forResponse();
     ModelMapper forEventResponse();    // Event entity’si için özel response mapping’lerinde kullanılan ModelMapper
     ModelMapper forTicketTypeResponse(); //TicketType entity → TicketTypeResponse DTO dönüşümleri için
+    ModelMapper forRegistrationResponse(); // Registration entity → RegistrationResponse DTO dönüşümleri için
 }
