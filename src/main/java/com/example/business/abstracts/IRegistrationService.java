@@ -1,6 +1,7 @@
 package com.example.business.abstracts;
 
 import com.example.entities.Registration;
+import com.example.enums.RegistrationStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface IRegistrationService {
     boolean delete(Long id);
     List<Registration> getByUser(Long userId); // Kullanıcıya göre kayıtları getirir
     List<Registration> getByTicketType(Long ticketTypeId); // Bilet türüne göre kayıtları getirir
+    List<Registration> getByStatus(RegistrationStatus status); // Duruma göre kayıtları getirir
 }
