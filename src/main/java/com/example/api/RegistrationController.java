@@ -114,4 +114,16 @@ public class RegistrationController {
 
         return ResultHelper.success(registrationResponses);
     }
+
+    @GetMapping("/ticket-type/{ticketTypeId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<List<RegistrationResponse>> getByTicketType(@PathVariable("ticketTypeId") Long ticketTypeId) {
+        List<Registration> registrations = this.registrationService.getByTicketType(ticketTypeId);
+
+        List<RegistrationResponse> registrationResponses = registrations.stream()
+                .map(registration -> this.modelMapperService.forRegistrationResponse().map(registration, RegistrationResponse.class))
+                .collect(Collectors.toList());
+
+        return ResultHelper.success(registrationResponses);
+    }
 }
