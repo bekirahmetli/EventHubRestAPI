@@ -53,4 +53,13 @@ public class RegistrationController {
 
         return ResultHelper.created(response);
     }
+
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<RegistrationResponse> get(@PathVariable("id") Long id) {
+        Registration registration = this.registrationService.get(id);
+        RegistrationResponse response = this.modelMapperService.forRegistrationResponse().map(registration, RegistrationResponse.class);
+        return ResultHelper.success(response);
+    }
 }
