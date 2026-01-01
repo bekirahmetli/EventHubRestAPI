@@ -1,8 +1,10 @@
 package com.example.mapper;
 
 import com.example.dto.response.EventResponse;
+import com.example.dto.response.RegistrationResponse;
 import com.example.dto.response.TicketTypeResponse;
 import com.example.entities.Event;
+import com.example.entities.Registration;
 import com.example.entities.TicketType;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -89,6 +91,36 @@ public class ModelManagerService implements IModelMapperService{
                 .addMappings(m -> {
                     m.map(src -> src.getEvent().getId(), TicketTypeResponse::setEventId);
                     m.map(src -> src.getEvent().getTitle(), TicketTypeResponse::setEventTitle);
+                });
+
+        return mapper;
+    }
+
+    /**
+     * Registration entity'si için özel response mapping'leri sağlayan ModelMapper.
+     *
+     * Amaç:
+     * - Nested entity alanlarını (User, TicketType, Event) düzleştirerek
+     *   RegistrationResponse DTO'suna map etmek
+     * - Controller katmanında manuel mapping ihtiyacını ortadan kaldırmak
+     *
+     * @return Registration → RegistrationResponse dönüşümleri için özel yapılandırılmış ModelMapper
+     */
+    @Override
+    public ModelMapper forRegistrationResponse() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration()
+                .setAmbiguityIgnored(true)
+                .setMatchingStrategy(MatchingStrategies.LOOSE);
+
+        mapper.typeMap(Registration.class, RegistrationResponse.class)
+                .addMappings(m -> {
+                    m.map(src -> src.getUser().getId(), RegistrationResponse::setUserId);
+                    m.map(src -> src.getUser().getName(), RegistrationResponse::setUserName);
+                    m.map(src -> src.getTicketType().getId(), RegistrationResponse::setTicketTypeId);
+                    m.map(src -> src.getTicketType().getName(), RegistrationResponse::setTicketTypeName);
+                    m.map(src -> src.getTicketType().getEvent().getId(), RegistrationResponse::setEventId);
+                    m.map(src -> src.getTicketType().getEvent().getTitle(), RegistrationResponse::setEventTitle);
                 });
 
         return mapper;
