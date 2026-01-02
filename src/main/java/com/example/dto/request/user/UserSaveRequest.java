@@ -21,6 +21,9 @@ public class UserSaveRequest {
     @Email(message = "Geçerli bir email adresi giriniz")
     private String email;
 
+    @NotBlank(message = "Şifre boş olamaz")
+    private String password;
+
     @NotNull(message = "Auth provider boş olamaz")
     private AuthProvider authProvider;
 
