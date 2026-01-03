@@ -1,5 +1,6 @@
 package com.example.config;
 
+import com.example.jwt.AuthEntryPoint;
 import com.example.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,10 +38,12 @@ public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter authenticationFilter;
+    private final AuthEntryPoint authEntryPoint;
 
-    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter authenticationFilter) {
+    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter authenticationFilter, AuthEntryPoint authEntryPoint) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationFilter = authenticationFilter;
+        this.authEntryPoint = authEntryPoint;
     }
 
 
@@ -64,6 +67,9 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)// JWT kullanıyoruz, session yok
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authEntryPoint)
                 )
                 .authenticationProvider(authenticationProvider)//Authentication işlemlerinde kullanılacak provider
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);// JWT filter'ı ekle
