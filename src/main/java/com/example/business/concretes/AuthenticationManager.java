@@ -3,6 +3,7 @@ package com.example.business.concretes;
 import com.example.business.abstracts.IAuthenticationService;
 import com.example.dao.UserRepo;
 import com.example.dto.request.auth.LoginRequest;
+import com.example.dto.request.auth.RefreshTokenRequest;
 import com.example.dto.request.auth.RegisterRequest;
 import com.example.dto.response.AuthenticationResponse;
 import com.example.entities.User;
@@ -16,12 +17,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 /**
- * Authentication (giriş/kayıt) işlemlerini yöneten servis sınıfı.
+ * Authentication (giriş / kayıt / token) işlemlerini yöneten servis sınıfı.
  *
  * Sorumluluklar:
  * - Kullanıcı kaydı (register)
  * - Kullanıcı girişi (login)
- * - JWT token üretimi
+ * - JWT access & refresh token üretimi
+ * - Refresh token ile yeni access token oluşturma
  */
 @Service
 public class AuthenticationManager implements IAuthenticationService {
@@ -73,11 +75,17 @@ public class AuthenticationManager implements IAuthenticationService {
         User savedUser = userRepo.save(user);
 
         // JWT token üret
-        String token = jwtService.generateToken(savedUser);
+        String accessToken = jwtService.generateToken(savedUser);
+        String refreshToken = jwtService.generateRefreshToken(savedUser);
+
+        // Refresh token'ı database'e kaydet
+        savedUser.setRefreshToken(refreshToken);
+        userRepo.save(savedUser);
 
         // Response oluştur
         return AuthenticationResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .userId(savedUser.getId())
                 .email(savedUser.getEmail())
@@ -102,7 +110,7 @@ public class AuthenticationManager implements IAuthenticationService {
         // email ile kullanıcıyı bul
         User user = userRepo.findByEmail(request.getEmail())
                 .orElseGet(() -> userRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new com.example.exception.NotFoundException("Kullanıcı bulunamadı")));
+                        .orElseThrow(() -> new NotFoundException("Kullanıcı bulunamadı")));
 
         // Spring Security ile authentication yap (şifre kontrolü burada yapılır)
         Authentication authentication = authenticationManager.authenticate(
@@ -114,10 +122,12 @@ public class AuthenticationManager implements IAuthenticationService {
 
         // Authentication başarılıysa token üret
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(user);
+            String accessToken = jwtService.generateToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
 
             return AuthenticationResponse.builder()
-                    .token(token)
+                    .token(accessToken)
+                    .refreshToken(refreshToken)
                     .tokenType("Bearer")
                     .userId(user.getId())
                     .email(user.getEmail())
@@ -126,5 +136,49 @@ public class AuthenticationManager implements IAuthenticationService {
         }
 
         throw new NotFoundException("Giriş başarısız");
+    }
+
+    /**
+     * Refresh token ile yeni access token üretir.
+     *
+     * Kurallar:
+     * - Refresh token geçerli olmalıdır
+     * - Refresh token database'de mevcut olmalıdır
+     * - Yeni access token ve refresh token üretilir
+     *
+     * @param request Refresh token
+     * @return Yeni access token ve refresh token içeren response
+     */
+    @Override
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) {
+        // Refresh token ile kullanıcıyı bul
+        User user = userRepo.findByRefreshToken(request.getRefreshToken())
+                .orElseThrow(() -> new com.example.exception.NotFoundException("Geçersiz refresh token"));
+
+        // Refresh token'ın geçerliliğini kontrol et
+        if (!jwtService.isTokenValid(request.getRefreshToken())) {
+            // Refresh token geçersizse database'den temizle
+            user.setRefreshToken(null);
+            userRepo.save(user);
+            throw new com.example.exception.NotFoundException("Refresh token süresi dolmuş");
+        }
+
+        // Yeni access token ve refresh token üret
+        String newAccessToken = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+        // Yeni refresh token'ı database'e kaydet
+        user.setRefreshToken(newRefreshToken);
+        userRepo.save(user);
+
+        // Response oluştur
+        return AuthenticationResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .tokenType("Bearer")
+                .userId(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 }
