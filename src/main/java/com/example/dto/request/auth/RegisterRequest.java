@@ -22,11 +22,10 @@ public class RegisterRequest {
     @Email(message = "Geçerli bir email adresi giriniz")
     private String email;
 
-    @NotBlank(message = "Şifre boş olamaz")
-    private String password;
+    private String password;// Password sadece LOCAL provider için zorunlu.OAuth2 için null olabilir
 
-    @NotNull(message = "Auth provider boş olamaz")
-    private AuthProvider authProvider;
+    @NotNull(message = "Auth provider belirtilmelidir")
+    private AuthProvider authProvider;// LOCAL, GOOGLE, GITHUB
 
     private String avatarUrl;
 
