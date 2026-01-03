@@ -10,4 +10,5 @@ public interface IAuthenticationService {
     AuthenticationResponse register(RegisterRequest request); // Kullanıcı kaydı
     AuthenticationResponse login(LoginRequest request); // Kullanıcı girişi
     AuthenticationResponse refreshToken(RefreshTokenRequest request);// Refresh token kullanarak yeni bir access token üretir.
+    void logout(String refreshToken); // Refresh token'ı geçersiz kılar
 }
