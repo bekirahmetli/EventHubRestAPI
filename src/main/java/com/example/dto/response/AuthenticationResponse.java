@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuthenticationResponse {
     private String token; // JWT token
+    private String refreshToken; // Refresh token
     private String tokenType = "Bearer"; // Token tipi
     private Long userId; // Kullanıcı ID'si
     private String email; // Email
