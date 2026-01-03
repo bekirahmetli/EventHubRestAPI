@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
 
