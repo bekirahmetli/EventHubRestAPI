@@ -1,6 +1,8 @@
 package com.example.dto.request.auth;
 
+import com.example.enums.AuthProvider;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,9 @@ public class LoginRequest {
     @NotBlank(message = "Email boş olamaz")
     private String email;
 
-    @NotBlank(message = "Şifre boş olamaz")
+    // Password sadece LOCAL provider için zorunlu.OAuth2 için null olabilir
     private String password;
+
+    @NotNull(message = "Auth provider belirtilmelidir")
+    private AuthProvider authProvider; // LOCAL, GOOGLE, GITHUB
 }
