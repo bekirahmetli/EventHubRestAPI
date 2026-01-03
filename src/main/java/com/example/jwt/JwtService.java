@@ -46,10 +46,53 @@ public class JwtService {
                 .claims(claimsMap)// Token içine eklenen custom claim’ler
                 .setSubject(userDetails.getUsername())// Token’ın kime ait olduğunu belirtir genelde username veya email kullanılır
                 .setIssuedAt(new Date())// Token’ın oluşturulduğu zamanı belirtir
-                // Token’ın geçerlilik süresinin biteceği zamanı belirtir burada 2 saat sonra token geçersiz olur
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 2))
+                // Token’ın geçerlilik süresinin biteceği zamanı belirtir burada 20 dk sonra token geçersiz olur
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 20))
                 .signWith(getKey(), SignatureAlgorithm.HS256)// Token’ın hangi anahtar ve algoritma ile imzalanacağını belirtir
                 .compact();// JWT’yi String formatına çevirir (header.payload.signature)
+    }
+
+    /**
+     * Refresh token üretir.
+     *
+     * Refresh token:
+     * - Access token'dan daha uzun süreli (4 saat)
+     * - Sadece yeni access token almak için kullanılır
+     * - Database'de saklanır
+     *
+     * @param userDetails Kullanıcı bilgileri
+     * @return Refresh token string
+     */
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claimsMap = new HashMap<>();
+
+        // User entity'sinden role'ü al
+        if (userDetails instanceof User) {
+            User user = (User) userDetails;
+            claimsMap.put("role", user.getRole().name());
+        }
+
+        return Jwts.builder()
+                .claims(claimsMap)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 4)) // 4 saat
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Token'ın geçerliliğini kontrol eder.
+     *
+     * @param token Kontrol edilecek token
+     * @return Token geçerliyse true, değilse false
+     */
+    public boolean isTokenValid(String token) {
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // Token içerisinden kullanıcının rol bilgisini okur.
@@ -82,12 +125,13 @@ public class JwtService {
     }
 
     // Token’ın süresinin dolup dolmadığını kontrol eder.
-    public boolean isTokenExpired(String token){
-        // Token içinden expiration tarihi alınır
-        Date expiredDate = exportToken(token, Claims::getExpiration);
-
-        // Şu anki zaman expiration tarihinden önceyse token geçerlidir
-        return new Date().before(expiredDate);
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiredDate = exportToken(token, Claims::getExpiration);
+            return expiredDate.before(new Date()); // Süresi dolmuşsa true
+        } catch (Exception e) {
+            return true; // Hata varsa token geçersiz say
+        }
     }
 
     // SECRET_KEY bilgisinden imzalama için kullanılacak Key nesnesini üretir.
