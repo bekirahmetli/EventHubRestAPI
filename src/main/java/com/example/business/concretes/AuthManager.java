@@ -26,16 +26,16 @@ import java.time.LocalDateTime;
  * - Refresh token ile yeni access token oluşturma
  */
 @Service
-public class AuthenticationManager implements IAuthenticationService {
+public class AuthManager implements IAuthenticationService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final org.springframework.security.authentication.AuthenticationManager authenticationManager;
 
-    public AuthenticationManager(UserRepo userRepo,
-                                 PasswordEncoder passwordEncoder,
-                                 JwtService jwtService,
-                                 org.springframework.security.authentication.AuthenticationManager authenticationManager) {
+    public AuthManager(UserRepo userRepo,
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService,
+                       org.springframework.security.authentication.AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
