@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface UserRepo extends JpaRepository<User,Long> {
     boolean existsByEmail(String email); // Email'in veritabanında mevcut olup olmadığını kontrol eder
     Optional<User> findByEmail(String email); // Email ile kullanıcı bulma
+    Optional<User> findByRefreshToken(String refreshToken);// Refresh token ile kullanıcı bulma
 }
