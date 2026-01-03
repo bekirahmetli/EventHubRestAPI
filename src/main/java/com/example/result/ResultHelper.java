@@ -78,4 +78,11 @@ public class ResultHelper {
     public static Result badRequestError(String msg) {
         return new Result(false, msg, "400");
     }
+
+    /**
+     * 401 Unauthorized hatası için Result oluşturur.
+     */
+    public static Result unauthorizedError(String msg) {
+        return new Result(false, msg, "401");
+    }
 }
