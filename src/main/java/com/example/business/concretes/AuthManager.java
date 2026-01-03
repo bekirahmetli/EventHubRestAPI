@@ -249,6 +249,7 @@ public class AuthManager implements IAuthenticationService {
      * @param avatarUrl OAuth2'den gelen avatar URL
      * @return AuthenticationResponse (JWT token içerir)
      */
+    @Override
     public AuthenticationResponse oauth2Login(String email, String name, AuthProvider provider, String avatarUrl) {
         // Kullanıcı var mı kontrol et
         Optional<User> optionalUser = userRepo.findByEmail(email);
