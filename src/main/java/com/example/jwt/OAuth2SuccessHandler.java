@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,7 +31,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final IAuthenticationService authenticationService;
 
-    public OAuth2SuccessHandler(IAuthenticationService authenticationService) {
+    //@Lazy annotation'ı circular dependency'yi çözmek için kullanılıyor.
+    public OAuth2SuccessHandler(@Lazy IAuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
