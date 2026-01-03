@@ -2,6 +2,8 @@ package com.example.config;
 
 import com.example.jwt.AuthEntryPoint;
 import com.example.jwt.JwtAuthenticationFilter;
+import com.example.jwt.OAuth2FailureHandler;
+import com.example.jwt.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -35,15 +37,22 @@ public class SecurityConfig {
     //Kullanıcı kayıt (register) URL'si
     public static final String REGISTER = "/v1/auth/register";
     public static final String REFRESH = "/v1/auth/refresh";
+    // OAuth2 callback endpoint'leri
+    public static final String OAUTH2_CALLBACK = "/oauth2/callback/**";
+    public static final String OAUTH2_LOGIN = "/oauth2/authorization/**";
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter authenticationFilter;
     private final AuthEntryPoint authEntryPoint;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
-    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter authenticationFilter, AuthEntryPoint authEntryPoint) {
+    public SecurityConfig(AuthenticationProvider authenticationProvider, JwtAuthenticationFilter authenticationFilter, AuthEntryPoint authEntryPoint, OAuth2SuccessHandler oAuth2SuccessHandler, OAuth2FailureHandler oAuth2FailureHandler) {
         this.authenticationProvider = authenticationProvider;
         this.authenticationFilter = authenticationFilter;
         this.authEntryPoint = authEntryPoint;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.oAuth2FailureHandler = oAuth2FailureHandler;
     }
 
 
@@ -62,7 +71,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())// CORS ayarlarını aktif eder.Aşağıda tanımlanan CorsConfigurationSource bean’i kullanılır.
                 .csrf(csrf -> csrf.disable()) //CSRF koruması kapatılır.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTHENTICATE,REGISTER,REFRESH).permitAll()// Bu endpoint'ler herkese açık
+                        // Public endpoint'ler
+                        .requestMatchers(AUTHENTICATE,REGISTER,REFRESH).permitAll()
+                        // OAuth2 endpoint'leri
+                        .requestMatchers(OAUTH2_CALLBACK, OAUTH2_LOGIN).permitAll()
                         .anyRequest().authenticated()// Diğer tüm endpoint'ler authentication gerektirir
                 )
                 .sessionManagement(session ->
@@ -72,7 +84,12 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authEntryPoint)
                 )
                 .authenticationProvider(authenticationProvider)//Authentication işlemlerinde kullanılacak provider
-                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);// JWT filter'ı ekle
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)// JWT filter'ı ekle
+                // OAuth2 yapılandırması
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler)
+                );
         return http.build();
     }
 
@@ -88,6 +105,7 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));// İzin verilen header’lar
         config.setAllowCredentials(true);// Authorization header gönderimine izin verir
+        config.setExposedHeaders(List.of("Authorization")); // Frontend'in Authorization header'ını okuyabilmesi için
 
         // Tüm endpoint’ler için bu CORS ayarlarını uygula
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -95,5 +113,4 @@ public class SecurityConfig {
 
         return source;
     }
-
 }
