@@ -7,6 +7,7 @@ import com.example.dto.request.auth.RefreshTokenRequest;
 import com.example.dto.request.auth.RegisterRequest;
 import com.example.dto.response.AuthenticationResponse;
 import com.example.entities.User;
+import com.example.enums.AuthProvider;
 import com.example.exception.AlreadyExistsException;
 import com.example.exception.NotFoundException;
 import com.example.jwt.JwtService;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * Authentication (giriş / kayıt / token) işlemlerini yöneten servis sınıfı.
@@ -61,11 +63,24 @@ public class AuthManager implements IAuthenticationService {
             throw new AlreadyExistsException("Bu email adresi zaten kullanılıyor: " + request.getEmail());
         }
 
+        // LOCAL provider için password kontrolü
+        if (request.getAuthProvider() == AuthProvider.LOCAL) {
+            if (request.getPassword() == null || request.getPassword().isBlank()) {
+                throw new IllegalArgumentException("LOCAL provider için şifre zorunludur");
+            }
+        }
+
         // User entity oluştur
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // Şifreyi hash'le
+        // Sadece LOCAL provider için password hash'le
+        if (request.getAuthProvider() == AuthProvider.LOCAL) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        } else {
+            // OAuth2 kullanıcıları için password null
+            user.setPassword(null);
+        }
         user.setAuthProvider(request.getAuthProvider());
         user.setAvatarUrl(request.getAvatarUrl());
         user.setRole(request.getRole());
@@ -109,33 +124,49 @@ public class AuthManager implements IAuthenticationService {
     public AuthenticationResponse login(LoginRequest request) {
         // email ile kullanıcıyı bul
         User user = userRepo.findByEmail(request.getEmail())
-                .orElseGet(() -> userRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new NotFoundException("Kullanıcı bulunamadı")));
+                .orElseThrow(() -> new NotFoundException("Kullanıcı bulunamadı"));
 
-        // Spring Security ile authentication yap (şifre kontrolü burada yapılır)
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getUsername(), // Spring Security username bekliyor
-                        request.getPassword()
-                )
-        );
-
-        // Authentication başarılıysa token üret
-        if (authentication.isAuthenticated()) {
-            String accessToken = jwtService.generateToken(user);
-            String refreshToken = jwtService.generateRefreshToken(user);
-
-            return AuthenticationResponse.builder()
-                    .token(accessToken)
-                    .refreshToken(refreshToken)
-                    .tokenType("Bearer")
-                    .userId(user.getId())
-                    .email(user.getEmail())
-                    .role(user.getRole().name())
-                    .build();
+        // Provider kontrolü
+        if (user.getAuthProvider() != request.getAuthProvider()) {
+            throw new IllegalArgumentException("Bu email " + user.getAuthProvider() + " ile kayıtlı");
         }
 
-        throw new NotFoundException("Giriş başarısız");
+        // LOCAL provider için password kontrolü
+        if (request.getAuthProvider() == AuthProvider.LOCAL) {
+            if (request.getPassword() == null || request.getPassword().isBlank()) {
+                throw new IllegalArgumentException("LOCAL provider için şifre gereklidir");
+            }
+
+            // Spring Security ile authentication yap (şifre kontrolü burada yapılır)
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getUsername(), // Spring Security username bekliyor
+                            request.getPassword()
+                    )
+            );
+
+            if (!authentication.isAuthenticated()) {
+                throw new NotFoundException("Giriş başarısız");
+            }
+        }
+        // OAuth2 kullanıcıları için password kontrolü yapılmaz
+
+        // JWT token üret
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        // Refresh token'ı database'e kaydet
+        user.setRefreshToken(refreshToken);
+        userRepo.save(user);
+
+        return AuthenticationResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .userId(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 
     /**
@@ -201,5 +232,67 @@ public class AuthManager implements IAuthenticationService {
             user.setRefreshToken(null); // Refresh token'ı temizle
             userRepo.save(user);
         }
+    }
+
+    /**
+     * OAuth2 callback'inde kullanıcı oluşturur veya günceller.
+     *
+     * OAuth2 akışı:
+     * 1. Kullanıcı Google/GitHub'a yönlendirilir
+     * 2. Kullanıcı giriş yapar
+     * 3. OAuth2 provider kullanıcıyı callback URL'ye yönlendirir
+     * 4. Bu metod çağrılır ve JWT token üretilir
+     *
+     * @param email OAuth2'den gelen email
+     * @param name OAuth2'den gelen isim
+     * @param provider GOOGLE veya GITHUB
+     * @param avatarUrl OAuth2'den gelen avatar URL
+     * @return AuthenticationResponse (JWT token içerir)
+     */
+    public AuthenticationResponse oauth2Login(String email, String name, AuthProvider provider, String avatarUrl) {
+        // Kullanıcı var mı kontrol et
+        Optional<User> optionalUser = userRepo.findByEmail(email);
+
+        User user;
+        if (optionalUser.isPresent()) {
+            // Kullanıcı varsa güncelle
+            user = optionalUser.get();
+            user.setName(name);
+            user.setAvatarUrl(avatarUrl);
+            // Provider değişikliği olabilir (LOCAL'den GOOGLE'a geçiş)
+            if (user.getAuthProvider() != provider) {
+                user.setAuthProvider(provider);
+                user.setPassword(null); // OAuth2'ye geçişte password'u temizle
+            }
+        } else {
+            // Kullanıcı yoksa oluştur
+            user = new User();
+            user.setEmail(email);
+            user.setName(name);
+            user.setAuthProvider(provider);
+            user.setAvatarUrl(avatarUrl);
+            user.setRole(com.example.enums.Role.USER); // Varsayılan rol
+            user.setPassword(null); // OAuth2 kullanıcıları için password yok
+            user.setCreatedAt(LocalDateTime.now());
+        }
+
+        user = userRepo.save(user);
+
+        // JWT token üret
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        // Refresh token'ı database'e kaydet
+        user.setRefreshToken(refreshToken);
+        userRepo.save(user);
+
+        return AuthenticationResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .tokenType("Bearer")
+                .userId(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 }
