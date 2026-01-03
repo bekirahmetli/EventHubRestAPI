@@ -181,4 +181,25 @@ public class AuthenticationManager implements IAuthenticationService {
                 .role(user.getRole().name())
                 .build();
     }
+
+    /**
+     * Kullanıcının çıkış (logout) işlemini gerçekleştirir.
+     *
+     * İşleyiş:
+     * - Client tarafından gönderilen refresh token ile kullanıcı bulunur
+     * - Kullanıcı mevcutsa refresh token database'den temizlenir
+     * - Böylece refresh token tekrar kullanılamaz hale gelir
+     *
+     * @param refreshToken Kullanıcıya ait refresh token
+     */
+    @Override
+    public void logout(String refreshToken) {
+        User user = userRepo.findByRefreshToken(refreshToken)
+                .orElse(null);
+
+        if (user != null) {
+            user.setRefreshToken(null); // Refresh token'ı temizle
+            userRepo.save(user);
+        }
+    }
 }
