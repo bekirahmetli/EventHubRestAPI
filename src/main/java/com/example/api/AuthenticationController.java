@@ -2,6 +2,7 @@ package com.example.api;
 
 import com.example.business.abstracts.IAuthenticationService;
 import com.example.dto.request.auth.LoginRequest;
+import com.example.dto.request.auth.RefreshTokenRequest;
 import com.example.dto.request.auth.RegisterRequest;
 import com.example.dto.response.AuthenticationResponse;
 import com.example.result.ResultData;
@@ -45,6 +46,17 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     public ResultData<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthenticationResponse response = authenticationService.login(request);
+        return ResultHelper.success(response);
+    }
+
+    /**
+     * Refresh token ile yeni access token alır.
+     * POST /v1/auth/refresh
+     */
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public ResultData<AuthenticationResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthenticationResponse response = authenticationService.refreshToken(request);
         return ResultHelper.success(response);
     }
 }
