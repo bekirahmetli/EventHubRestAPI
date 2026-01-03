@@ -33,6 +33,7 @@ public class SecurityConfig {
     public static final String AUTHENTICATE = "/v1/auth/authenticate";
     //Kullanıcı kayıt (register) URL'si
     public static final String REGISTER = "/v1/auth/register";
+    public static final String REFRESH = "/v1/auth/refresh";
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter authenticationFilter;
@@ -58,7 +59,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())// CORS ayarlarını aktif eder.Aşağıda tanımlanan CorsConfigurationSource bean’i kullanılır.
                 .csrf(csrf -> csrf.disable()) //CSRF koruması kapatılır.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTHENTICATE,REGISTER).permitAll()// Bu endpoint'ler herkese açık
+                        .requestMatchers(AUTHENTICATE,REGISTER,REFRESH).permitAll()// Bu endpoint'ler herkese açık
                         .anyRequest().authenticated()// Diğer tüm endpoint'ler authentication gerektirir
                 )
                 .sessionManagement(session ->
