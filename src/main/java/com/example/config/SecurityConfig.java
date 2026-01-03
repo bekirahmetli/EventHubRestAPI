@@ -41,6 +41,12 @@ public class SecurityConfig {
     public static final String OAUTH2_CALLBACK = "/oauth2/callback/**";
     public static final String OAUTH2_LOGIN = "/oauth2/authorization/**";
 
+    public static final String[] SWAGGER_PATHS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html"
+    };
+
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter authenticationFilter;
     private final AuthEntryPoint authEntryPoint;
@@ -75,6 +81,7 @@ public class SecurityConfig {
                         .requestMatchers(AUTHENTICATE,REGISTER,REFRESH).permitAll()
                         // OAuth2 endpoint'leri
                         .requestMatchers(OAUTH2_CALLBACK, OAUTH2_LOGIN).permitAll()
+                        .requestMatchers(SWAGGER_PATHS).permitAll()
                         .anyRequest().authenticated()// Diğer tüm endpoint'ler authentication gerektirir
                 )
                 .sessionManagement(session ->
