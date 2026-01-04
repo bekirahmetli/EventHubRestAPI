@@ -1,17 +1,19 @@
 package com.example.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"ticketTypes", "category", "user"})
+@EqualsAndHashCode(exclude = {"ticketTypes", "category", "user"})
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,9 +3,7 @@ package com.example.entities;
 import com.example.enums.AuthProvider;
 import com.example.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +15,10 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"registrations", "events"})
+@EqualsAndHashCode(exclude = {"registrations", "events"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {

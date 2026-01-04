@@ -2,17 +2,18 @@ package com.example.entities;
 
 import com.example.enums.RegistrationStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "registrations")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"user", "ticketType"})
+@EqualsAndHashCode(exclude = {"user", "ticketType"})
 public class Registration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,17 +1,18 @@
 package com.example.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Table(name = "categories")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"events"})
+@EqualsAndHashCode(exclude = {"events"})
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
