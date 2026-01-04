@@ -52,6 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         String token = authHeader.substring(7);// "Bearer " prefix’i kaldırılarak sadece JWT alınır
         try {
+            // Token'ın geçerliliğini kontrol et (hem expired hem de parse hatası kontrolü)
+            if (!jwtService.isTokenValid(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             String username = jwtService.getUsernameByToken(token);// Token içinden username bilgisi alınır
 
             // Username varsa ve SecurityContext içinde henüz authentication yoksa
@@ -60,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);// Username üzerinden kullanıcı bilgileri yüklenir
 
                 // Kullanıcı mevcutsa ve token süresi dolmamışsa
-                if (userDetails != null && !jwtService.isTokenExpired(token)) {
+                if (userDetails != null) {
                     // Spring Security Authentication nesnesi oluşturulur
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
