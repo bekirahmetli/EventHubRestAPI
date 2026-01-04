@@ -8,6 +8,7 @@ import com.example.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -22,9 +23,11 @@ import java.time.LocalDateTime;
 @Service
 public class UserManager implements IUserService {
     private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserManager(UserRepo userRepo) {
+    public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -54,8 +57,21 @@ public class UserManager implements IUserService {
                 userRepo.existsByEmail(user.getEmail())) {
             throw new AlreadyExistsException("Bu email adresi zaten mevcut: " + user.getEmail());
         }
+
+        // Password kontrolü: Eğer password null veya boş ise, mevcut password'u koru
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            user.setPassword(existingUser.getPassword()); // Mevcut password'u koru
+        } else {
+            // Yeni password gelmişse hash'le
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
         // createdAt'i koru (güncelleme sırasında değişmemeli)
         user.setCreatedAt(existingUser.getCreatedAt());
+
+        // refreshToken'ı koru (güncelleme sırasında değişmemeli)
+        user.setRefreshToken(existingUser.getRefreshToken());
+
         return this.userRepo.save(user);
     }
 
