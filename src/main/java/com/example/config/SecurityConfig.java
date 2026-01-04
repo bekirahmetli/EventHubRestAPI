@@ -40,6 +40,7 @@ public class SecurityConfig {
     // OAuth2 callback endpoint'leri
     public static final String OAUTH2_CALLBACK = "/oauth2/callback/**";
     public static final String OAUTH2_LOGIN = "/oauth2/authorization/**";
+    public static final String LOGOUT = "/v1/auth/logout";
 
     public static final String[] SWAGGER_PATHS = {
             "/swagger-ui/**",
@@ -78,7 +79,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) //CSRF koruması kapatılır.
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoint'ler
-                        .requestMatchers(AUTHENTICATE,REGISTER,REFRESH).permitAll()
+                        .requestMatchers(AUTHENTICATE,REGISTER,REFRESH,LOGOUT).permitAll()
                         // OAuth2 endpoint'leri
                         .requestMatchers(OAUTH2_CALLBACK, OAUTH2_LOGIN).permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll()
