@@ -13,6 +13,7 @@ import com.example.result.ResultHelper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,19 +27,30 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/users")
 public class UserController {
-
     private final IUserService userService;
     private final IModelMapperService modelMapperService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(IUserService userService, IModelMapperService modelMapperService) {
+    public UserController(IUserService userService, IModelMapperService modelMapperService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.modelMapperService = modelMapperService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResultData<UserResponse> save(@Valid @RequestBody UserSaveRequest request){
         User userToSave = this.modelMapperService.forRequest().map(request,User.class);
+
+        // Password hash'leme (LOCAL provider için)
+        if (request.getAuthProvider() == com.example.enums.AuthProvider.LOCAL) {
+            if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                userToSave.setPassword(passwordEncoder.encode(request.getPassword()));
+            }
+        } else {
+            userToSave.setPassword(null); // OAuth2 kullanıcıları için password null
+        }
+
         User savedUser = this.userService.save(userToSave);
         UserResponse response = this.modelMapperService.forResponse().map(savedUser,UserResponse.class);
         return ResultHelper.created(response);
