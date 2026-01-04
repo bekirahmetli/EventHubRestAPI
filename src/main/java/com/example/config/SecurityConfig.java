@@ -82,6 +82,7 @@ public class SecurityConfig {
                         // OAuth2 endpoint'leri
                         .requestMatchers(OAUTH2_CALLBACK, OAUTH2_LOGIN).permitAll()
                         .requestMatchers(SWAGGER_PATHS).permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()// Diğer tüm endpoint'ler authentication gerektirir
                 )
                 .sessionManagement(session ->
