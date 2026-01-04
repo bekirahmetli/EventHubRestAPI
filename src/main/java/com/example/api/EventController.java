@@ -57,6 +57,8 @@ public class EventController {
     public ResultData<EventResponse> save(@Valid @RequestBody EventSaveRequest request){
         Event eventToSave = this.modelMapperService.forRequest().map(request,Event.class);
 
+        eventToSave.setId(null); // Yeni kayıt için id null olmalı
+
         Category category = this.categoryRepo.findById(request.getCategoryId())
                 .orElseThrow(() -> new com.example.exception.NotFoundException("Kategori bulunamadı. ID: " + request.getCategoryId()));
 

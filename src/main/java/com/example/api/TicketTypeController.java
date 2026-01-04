@@ -47,6 +47,8 @@ public class TicketTypeController {
     public ResultData<TicketTypeResponse> save(@Valid @RequestBody TicketTypeSaveRequest request){
         TicketType ticketTypeToSave = this.modelMapperService.forRequest().map(request, TicketType.class);
 
+        ticketTypeToSave.setId(null); // Yeni kayıt için id null olmalı
+
         Event event = this.eventRepo.findById(request.getEventId())
                 .orElseThrow(() -> new NotFoundException("Etkinlik bulunamadı. ID: " + request.getEventId()));
 

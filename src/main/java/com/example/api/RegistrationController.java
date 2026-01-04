@@ -56,6 +56,8 @@ public class RegistrationController {
     public ResultData<RegistrationResponse> save(@Valid @RequestBody RegistrationSaveRequest request) {
         Registration registrationToSave = this.modelMapperService.forRequest().map(request, Registration.class);
 
+        registrationToSave.setId(null); // Yeni kayıt için id null olmalı
+
         User user = this.userRepo.findById(request.getUserId())
                 .orElseThrow(() -> new com.example.exception.NotFoundException("Kullanıcı bulunamadı. ID: " + request.getUserId()));
 
