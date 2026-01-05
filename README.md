@@ -265,6 +265,10 @@ To configure OAuth2:
    - Copy Client ID and Client Secret
    - Update `application.properties` with your credentials
 
+   **GitHub OAuth Login Screen:**
+   
+   ![OAuth2 GitHub Login](uploads/oauth.png)
+
 2. **Google OAuth** (optional):
    - Go to Google Cloud Console
    - Create OAuth 2.0 credentials
@@ -1048,6 +1052,10 @@ OAuth2'yi yapılandırmak için:
    - Authorization callback URL'yi ayarlayın: `http://localhost:8080/oauth2/callback/github`
    - Client ID ve Client Secret'ı kopyalayın
    - `application.properties` dosyasını kimlik bilgilerinizle güncelleyin
+
+   **GitHub OAuth Giriş Ekranı:**
+   
+   ![OAuth2 GitHub Giriş](uploads/oauth.png)
 
 2. **Google OAuth** (opsiyonel):
    - Google Cloud Console'a gidin
